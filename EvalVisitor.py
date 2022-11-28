@@ -18,9 +18,24 @@ class EvalVisitor(ExprVisitor):
     def visitBloque(self, ctx:ExprParser.BloqueContext):
         return self.visitChildren(ctx)
 
+    # Visit a parse tree produced by ExprParser#while.
+    def visitWhile(self, ctx:ExprParser.WhileContext):
+        l = list(ctx.getChildren())
+        while self.visit(l[1]):
+            for i in range(3, len(l)-1):
+                self.visit(l[i])
+
     def visitIf(self, ctx:ExprParser.IfContext):
-        if(self.visit(ctx.cond())):
-            return self.visit(ctx.bloque())
+        l = list(ctx.getChildren())
+        if(len(l) == 5):
+            if(self.visit(l[1])):
+                return self.visit(l[3])
+        else:
+            if(self.visit(l[1])):
+                return self.visit(l[3])
+            else:
+                return self.visit(l[7])
+
 
     # Visit a parse tree produced by ExprParser#condVARVAR.
     def visitCondVARVAR(self, ctx:ExprParser.CondVARVARContext):
@@ -30,6 +45,12 @@ class EvalVisitor(ExprVisitor):
             return self.variables[l[0].getText()] > self.variables[l[2].getText()]
         elif operador == '<':
             return self.variables[l[0].getText()] < self.variables[l[2].getText()]
+        elif operador == '<=':
+            return self.variables[l[0].getText()] <= self.variables[l[2].getText()]
+        elif operador == '>=':
+            return self.variables[l[0].getText()] >= self.variables[l[2].getText()]
+        elif operador == '!=':
+            return self.variables[l[0].getText()] != self.variables[l[2].getText()]
         else:
             return self.variables[l[0].getText()] == self.variables[l[2].getText()]
 
@@ -43,6 +64,12 @@ class EvalVisitor(ExprVisitor):
             return self.variables[l[0].getText()] > self.visit(l[2])
         elif operador == '<':
             return self.variables[l[0].getText()] < self.visit(l[2])
+        elif operador == '<=':
+            return self.variables[l[0].getText()] <= self.visit(l[2])
+        elif operador == '>=':
+            return self.variables[l[0].getText()] >= self.visit(l[2])
+        elif operador == '!=':
+            return self.variables[l[0].getText()] != self.visit(l[2])
         else:
             return self.variables[l[0].getText()] == self.visit(l[2])
 
@@ -55,6 +82,12 @@ class EvalVisitor(ExprVisitor):
             return self.visit(l[0]) > self.visit(l[2])
         elif operador == '<':
             return self.visit(l[0]) < self.visit(l[2])
+        elif operador == '<=':
+            return self.visit(l[0]) <= self.visit(l[2])
+        elif operador == '>=':
+            return self.visit(l[0]) >= self.visit(l[2])
+        elif operador == '!=':
+            return self.visit(l[0]) != self.visit(l[2])
         else:
             return self.visit(l[0]) == self.visit(l[2])
 
@@ -89,6 +122,11 @@ class EvalVisitor(ExprVisitor):
         l = list(ctx.getChildren())
         return int(l[0].getText())
 
+    # Visit a parse tree produced by ExprParser#Var.
+    def visitVar(self, ctx:ExprParser.VarContext):
+        l = list(ctx.getChildren())
+        return self.variables[l[0].getText()]
+
     def visitStatement(self, ctx):
         return self.visitChildren(ctx)
 
@@ -96,7 +134,3 @@ class EvalVisitor(ExprVisitor):
     def visitAssig(self, ctx):
         self.variables[ctx.VAR().getText()] = self.visit(ctx.expr())
         return "Variable "+ ctx.VAR().getText() + " inicializada."
-
-    # Visit a parse tree produced by ExprParser#write.
-    def visitWrite(self, ctx):
-        return self.variables[ctx.VAR().getText()]

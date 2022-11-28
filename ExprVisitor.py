@@ -29,13 +29,13 @@ class ExprVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by ExprParser#write.
-    def visitWrite(self, ctx:ExprParser.WriteContext):
+    # Visit a parse tree produced by ExprParser#if.
+    def visitIf(self, ctx:ExprParser.IfContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by ExprParser#if.
-    def visitIf(self, ctx:ExprParser.IfContext):
+    # Visit a parse tree produced by ExprParser#while.
+    def visitWhile(self, ctx:ExprParser.WhileContext):
         return self.visitChildren(ctx)
 
 
@@ -66,6 +66,11 @@ class ExprVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by ExprParser#MulDiv.
     def visitMulDiv(self, ctx:ExprParser.MulDivContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#Var.
+    def visitVar(self, ctx:ExprParser.VarContext):
         return self.visitChildren(ctx)
 
 

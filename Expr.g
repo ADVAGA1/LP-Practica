@@ -1,21 +1,18 @@
 grammar Expr;
 
-root : bloque root
-    | EOF
-    ;
+root : bloque EOF;
 
-bloque: if | statement;
+bloque: if | while | statement;
 
 statement : assig
-    | write
     | expr
     ;
 
-assig : VAR ':=' expr;
+assig : VAR '<-' expr;
 
-write : 'write' VAR;
+if : 'if' cond '{' bloque '}' ?('else' '{' bloque '}') ;
 
-if : 'if' cond 'then' bloque 'end';
+while: 'while' cond '{' statement *statement '}';
 
 cond : VAR operadorbool VAR  #condVARVAR
     | VAR operadorbool expr  #condVARExpr
@@ -23,9 +20,7 @@ cond : VAR operadorbool VAR  #condVARVAR
     ;
 
 
-operadorbool : GT | LT | EQ ;
-
-VAR: [a-z]+ ;
+operadorbool : GT | LT | EQ | DIF | GTE | LTE;
 
 expr
     : <assoc=right> expr '^' expr  #Potencia
@@ -33,10 +28,15 @@ expr
     | expr ('+'|'-') expr  #SumRes
     | '(' expr ')'  #Paren
     | NUM   #Num
+    | VAR #Var
     ;
 
 NUM : [0-9]+ ;
+VAR: [a-z]+ ;
 WS : [ \n]+ -> skip ;
 GT : '>';
+GTE: '>=';
+LTE: '<=';
 LT : '<';
 EQ : '=';
+DIF : '!=';
