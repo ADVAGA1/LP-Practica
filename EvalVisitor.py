@@ -7,7 +7,8 @@ else:
 
 class EvalVisitor(ExprVisitor):
     def __init__(self):
-        self.variables = {}
+        self.stack_variables = [{}]
+        self.functions = {}   #clave ID, valores PARAMS, CONTEXT
 
 
     def visitRoot(self,ctx):
@@ -15,17 +16,33 @@ class EvalVisitor(ExprVisitor):
         if(len(l) == 2):
             print(self.visit(l[0]))
 
+    # Visit a parse tree produced by ExprParser#def.
+    def visitFunc(self, ctx:ExprParser.FuncContext):
+        l = list(ctx.getChildren())
+        f_info = {}
+        f_info["PARAMS"] = []
+        params = self.visit(l[1])
+        for i in params:
+            f_info["PARAMS"].append(i.getText())
+        f_info["CONTEXT"] = l[-2]
+        self.functions[l[0].getText()] = f_info
+        return "Funcion "+l[0].getText()+ " definida."
+
+    # Visit a parse tree produced by ExprParser#args.
+    def visitArgs(self, ctx:ExprParser.ArgsContext):
+        return list(ctx.getChildren())
+
     def visitBloque(self, ctx:ExprParser.BloqueContext):
         return self.visitChildren(ctx)
 
     # Visit a parse tree produced by ExprParser#while.
-    def visitWhile(self, ctx:ExprParser.WhileContext):
+    def visitMientras(self, ctx:ExprParser.MientrasContext):
         l = list(ctx.getChildren())
         while self.visit(l[1]):
             for i in range(3, len(l)-1):
                 self.visit(l[i])
 
-    def visitIf(self, ctx:ExprParser.IfContext):
+    def visitSi(self, ctx:ExprParser.SiContext):
         l = list(ctx.getChildren())
         if(len(l) == 5):
             if(self.visit(l[1])):
@@ -36,23 +53,22 @@ class EvalVisitor(ExprVisitor):
             else:
                 return self.visit(l[7])
 
-
     # Visit a parse tree produced by ExprParser#condVARVAR.
     def visitCondVARVAR(self, ctx:ExprParser.CondVARVARContext):
         l = list(ctx.getChildren())
         operador = self.visit(ctx.operadorbool())
         if operador == '>':
-            return self.variables[l[0].getText()] > self.variables[l[2].getText()]
+            return self.stack_variables[-1][l[0].getText()] > self.stack_variables[-1][l[2].getText()]
         elif operador == '<':
-            return self.variables[l[0].getText()] < self.variables[l[2].getText()]
+            return self.stack_variables[-1][l[0].getText()] < self.stack_variables[-1][l[2].getText()]
         elif operador == '<=':
-            return self.variables[l[0].getText()] <= self.variables[l[2].getText()]
+            return self.stack_variables[-1][l[0].getText()] <= self.stack_variables[-1][l[2].getText()]
         elif operador == '>=':
-            return self.variables[l[0].getText()] >= self.variables[l[2].getText()]
+            return self.stack_variables[-1][l[0].getText()] >= self.stack_variables[-1][l[2].getText()]
         elif operador == '!=':
-            return self.variables[l[0].getText()] != self.variables[l[2].getText()]
+            return self.stack_variables[-1][l[0].getText()] != self.stack_variables[-1][l[2].getText()]
         else:
-            return self.variables[l[0].getText()] == self.variables[l[2].getText()]
+            return self.stack_variables[-1][l[0].getText()] == self.stack_variables[-1][l[2].getText()]
 
 
 
@@ -61,17 +77,17 @@ class EvalVisitor(ExprVisitor):
         l = list(ctx.getChildren())
         operador = self.visit(ctx.operadorbool())
         if operador == '>':
-            return self.variables[l[0].getText()] > self.visit(l[2])
+            return self.stack_variables[-1][l[0].getText()] > self.visit(l[2])
         elif operador == '<':
-            return self.variables[l[0].getText()] < self.visit(l[2])
+            return self.stack_variables[-1][l[0].getText()] < self.visit(l[2])
         elif operador == '<=':
-            return self.variables[l[0].getText()] <= self.visit(l[2])
+            return self.stack_variables[-1][l[0].getText()] <= self.visit(l[2])
         elif operador == '>=':
-            return self.variables[l[0].getText()] >= self.visit(l[2])
+            return self.stack_variables[-1][l[0].getText()] >= self.visit(l[2])
         elif operador == '!=':
-            return self.variables[l[0].getText()] != self.visit(l[2])
+            return self.stack_variables[-1][l[0].getText()] != self.visit(l[2])
         else:
-            return self.variables[l[0].getText()] == self.visit(l[2])
+            return self.stack_variables[-1][l[0].getText()] == self.visit(l[2])
 
 
     # Visit a parse tree produced by ExprParser#condExprExpr.
@@ -125,12 +141,24 @@ class EvalVisitor(ExprVisitor):
     # Visit a parse tree produced by ExprParser#Var.
     def visitVar(self, ctx:ExprParser.VarContext):
         l = list(ctx.getChildren())
-        return self.variables[l[0].getText()]
+        return self.stack_variables[-1][l[0].getText()]
 
     def visitStatement(self, ctx):
         return self.visitChildren(ctx)
 
     # Visit a parse tree produced by ExprParser#assig.
     def visitAssig(self, ctx):
-        self.variables[ctx.VAR().getText()] = self.visit(ctx.expr())
+        self.stack_variables[-1][ctx.VAR().getText()] = self.visit(ctx.expr())
         return "Variable "+ ctx.VAR().getText() + " inicializada."
+
+    # Visit a parse tree produced by ExprParser#Id.
+    def visitId(self, ctx:ExprParser.IdContext):
+        l = list(ctx.getChildren())
+        if len(l) - 1  == len(self.functions[l[0].getText()]["PARAMS"]):
+            variables = {}
+            for i in range(0, len(self.functions[l[0].getText()]["PARAMS"])):
+                variables[self.functions[l[0].getText()]["PARAMS"][i]] = self.visit(l[i+1])
+            self.stack_variables.append(variables)
+            ret = self.visit(self.functions[l[0].getText()]["CONTEXT"])
+            self.stack_variables.pop()
+            return ret

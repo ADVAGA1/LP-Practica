@@ -1,8 +1,12 @@
 grammar Expr;
 
-root : bloque EOF;
+root : func EOF | bloque EOF;
 
-bloque: if | while | statement;
+func: ID args '{' bloque '}';
+
+args: VAR*;
+
+bloque: (si|mientras|statement)+;
 
 statement : assig
     | expr
@@ -10,9 +14,9 @@ statement : assig
 
 assig : VAR '<-' expr;
 
-if : 'if' cond '{' bloque '}' ?('else' '{' bloque '}') ;
+si : 'if' cond '{' bloque '}' ('else' '{' bloque '}')? ;
 
-while: 'while' cond '{' statement *statement '}';
+mientras: 'while' cond '{' bloque '}';
 
 cond : VAR operadorbool VAR  #condVARVAR
     | VAR operadorbool expr  #condVARExpr
@@ -29,9 +33,11 @@ expr
     | '(' expr ')'  #Paren
     | NUM   #Num
     | VAR #Var
+    | ID expr* #Id
     ;
 
 NUM : [0-9]+ ;
+ID: [A-Z][a-z]*;
 VAR: [a-z]+ ;
 WS : [ \n]+ -> skip ;
 GT : '>';
