@@ -29,6 +29,7 @@ operadorbool : GT | LT | EQ | DIF | GTE | LTE;
 expr
     : <assoc=right> expr '^' expr  #Potencia
     | expr ('*'|'/') expr  #MulDiv
+    | expr '%' expr        #Modulo
     | expr ('+'|'-') expr  #SumRes
     | '(' expr ')'  #Paren
     | NUM   #Num
@@ -37,9 +38,10 @@ expr
     ;
 
 NUM : [0-9]+ ;
-ID: [A-Z][a-z]*;
+ID: [A-Z]+[a-zA-Z0-9]*;
 VAR: [a-z]+ ;
 WS : [ \n]+ -> skip ;
+COMMENT: '#'[ a-zA-Z0-9]* -> skip;
 GT : '>';
 GTE: '>=';
 LTE: '<=';
