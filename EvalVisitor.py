@@ -13,8 +13,7 @@ class EvalVisitor(ExprVisitor):
 
     def visitRoot(self,ctx):
         l = list(ctx.getChildren())
-        if(len(l) == 2):
-            print(self.visit(l[0]))
+        self.visit(l[0])
 
     # Visit a parse tree produced by ExprParser#def.
     def visitFunc(self, ctx:ExprParser.FuncContext):
@@ -26,7 +25,6 @@ class EvalVisitor(ExprVisitor):
             f_info["PARAMS"].append(i.getText())
         f_info["CONTEXT"] = l[-2]
         self.functions[l[0].getText()] = f_info
-        return "Funcion "+l[0].getText()+ " definida."
 
     # Visit a parse tree produced by ExprParser#args.
     def visitArgs(self, ctx:ExprParser.ArgsContext):
@@ -144,7 +142,8 @@ class EvalVisitor(ExprVisitor):
         return self.stack_variables[-1][l[0].getText()]
 
     def visitStatement(self, ctx):
-        return self.visitChildren(ctx)
+        n = self.visitChildren(ctx)
+        return n
 
     # Visit a parse tree produced by ExprParser#assig.
     def visitAssig(self, ctx):

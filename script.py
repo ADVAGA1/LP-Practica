@@ -19,3 +19,4 @@ while a != '.':
 
     visitor.visit(tree)
     a = input('? ')
+
