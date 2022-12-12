@@ -13,7 +13,7 @@ class EvalVisitor(ExprVisitor):
 
     def visitRoot(self,ctx):
         l = list(ctx.getChildren())
-        self.visit(l[0])
+        print(self.visit(l[0]))
 
     # Visit a parse tree produced by ExprParser#def.
     def visitFunc(self, ctx:ExprParser.FuncContext):
@@ -31,25 +31,32 @@ class EvalVisitor(ExprVisitor):
         return list(ctx.getChildren())
 
     def visitBloque(self, ctx:ExprParser.BloqueContext):
-        return self.visitChildren(ctx)
+        l = list(ctx.getChildren())
+        for child in l:
+            n = self.visit(child)
+            if n is not None: return n
 
     # Visit a parse tree produced by ExprParser#while.
     def visitMientras(self, ctx:ExprParser.MientrasContext):
         l = list(ctx.getChildren())
         while self.visit(l[1]):
             for i in range(3, len(l)-1):
-                self.visit(l[i])
+                n = self.visit(l[i])
+                if n is not None: return n
 
     def visitSi(self, ctx:ExprParser.SiContext):
         l = list(ctx.getChildren())
         if(len(l) == 5):
             if(self.visit(l[1])):
-                return self.visit(l[3])
+                n = self.visit(l[3])
+                if n is not None: return n
         else:
             if(self.visit(l[1])):
-                return self.visit(l[3])
+                n = self.visit(l[3])
+                if n is not None: return n
             else:
-                return self.visit(l[7])
+                n = self.visit(l[7])
+                if n is not None: return n
 
     # Visit a parse tree produced by ExprParser#condVARVAR.
     def visitCondVARVAR(self, ctx:ExprParser.CondVARVARContext):
@@ -128,6 +135,11 @@ class EvalVisitor(ExprVisitor):
         else:
             return self.visit(l[0]) // self.visit(l[2])
 
+    # Visit a parse tree produced by ExprParser#Modulo.
+    def visitModulo(self, ctx:ExprParser.ModuloContext):
+        l = list(ctx.getChildren())
+        return self.visit(l[0]) % self.visit(l[2])
+
     def visitParen(self, ctx):
         l = list(ctx.getChildren())
         return self.visit(l[1])
@@ -148,7 +160,6 @@ class EvalVisitor(ExprVisitor):
     # Visit a parse tree produced by ExprParser#assig.
     def visitAssig(self, ctx):
         self.stack_variables[-1][ctx.VAR().getText()] = self.visit(ctx.expr())
-        return "Variable "+ ctx.VAR().getText() + " inicializada."
 
     # Visit a parse tree produced by ExprParser#Id.
     def visitId(self, ctx:ExprParser.IdContext):
