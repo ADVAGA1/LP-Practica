@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Funx</title>
+        <link href="{{ url_for('static',filename='css/main.css') }}" rel="stylesheet">
+    </head>
+    <body>
+        <div class="izquierda">
+            <div class="funciones">
+                <h1 class="titulo" id="funciones">Funciones:</h1>
+                <ul>
+                    <li>Suma x y</li>
+                </ul>
+                <div class="consola">
+                    <h1 class="titulo" id="consola">Consola:</h1>
+                    <div class="input">
+                        <form action="http://localhost:5000/result" method="POST">
+                            <textarea name="input" rows="4" cols="50">#Pon tu código aqui</textarea>
+                            <br>
+                            <input type="submit" value="Submit">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="derecha">
+            <div>
+                <h1 class="titulo" id="resultats">Resultats:</h1>
+            </div>
+        </div>
+    </body>
+</html>
