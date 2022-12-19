@@ -18,17 +18,23 @@ class EvalVisitor(ExprVisitor):
     # Visit a parse tree produced by ExprParser#def.
     def visitFunc(self, ctx:ExprParser.FuncContext):
         l = list(ctx.getChildren())
+        assert not l[0].getText() in self.functions, "Error: Funcion ya definida"
         f_info = {}
         f_info["PARAMS"] = []
         params = self.visit(l[1])
         for i in params:
-            f_info["PARAMS"].append(i.getText())
+            assert not i in f_info["PARAMS"], "Error: parametros repetidos"
+            f_info["PARAMS"].append(i)
         f_info["CONTEXT"] = l[-2]
         self.functions[l[0].getText()] = f_info
 
     # Visit a parse tree produced by ExprParser#args.
     def visitArgs(self, ctx:ExprParser.ArgsContext):
-        return list(ctx.getChildren())
+        l = list(ctx.getChildren())
+        lista = []
+        for child in l:
+            lista.append(child.getText())
+        return lista
 
     def visitBloque(self, ctx:ExprParser.BloqueContext):
         l = list(ctx.getChildren())
@@ -133,6 +139,7 @@ class EvalVisitor(ExprVisitor):
         if(l[1].getText() == '*'):
             return self.visit(l[0]) * self.visit(l[2])
         else:
+            assert self.visit(l[2]) != 0, "Error: Division por 0"
             return self.visit(l[0]) // self.visit(l[2])
 
     # Visit a parse tree produced by ExprParser#Modulo.
@@ -164,11 +171,12 @@ class EvalVisitor(ExprVisitor):
     # Visit a parse tree produced by ExprParser#Id.
     def visitId(self, ctx:ExprParser.IdContext):
         l = list(ctx.getChildren())
-        if len(l) - 1  == len(self.functions[l[0].getText()]["PARAMS"]):
-            variables = {}
-            for i in range(0, len(self.functions[l[0].getText()]["PARAMS"])):
-                variables[self.functions[l[0].getText()]["PARAMS"][i]] = self.visit(l[i+1])
-            self.stack_variables.append(variables)
-            ret = self.visit(self.functions[l[0].getText()]["CONTEXT"])
-            self.stack_variables.pop()
-            return ret
+        assert l[0].getText() in self.functions, "Error: Funcion no definida"
+        assert len(l) - 1  == len(self.functions[l[0].getText()]["PARAMS"]), "Error: Numero de parámetros incorrecto"
+        variables = {}
+        for i in range(0, len(self.functions[l[0].getText()]["PARAMS"])):
+            variables[self.functions[l[0].getText()]["PARAMS"][i]] = self.visit(l[i+1])
+        self.stack_variables.append(variables)
+        ret = self.visit(self.functions[l[0].getText()]["CONTEXT"])
+        self.stack_variables.pop()
+        return ret
