@@ -84,6 +84,11 @@ class ExprVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by ExprParser#Modulo.
+    def visitModulo(self, ctx:ExprParser.ModuloContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by ExprParser#Num.
     def visitNum(self, ctx:ExprParser.NumContext):
         return self.visitChildren(ctx)
