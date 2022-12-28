@@ -1,2 +1,16 @@
-<!doctype html>
-  <p>{{result}}</p>
+{% extends 'index.html' %}
+
+{% block header %}
+  <ul>
+  {% for f in funcion %}
+    <li class= "funcion">{{f}}</li>
+  {% endfor %}
+  </ul>
+{% endblock %}
+
+{% block content %}
+  {% for i in range(0,[5,result|length]|min) %}
+    <p class="resultado"><b>In {{result|length-i}}:</b> {{expresion[expr|length-i-1]}}</p>
+    <p class="resultado"><b>Out {{result|length-i}}:</b> {{result[result|length-i-1]}}</p>
+  {% endfor %}
+{% endblock %}

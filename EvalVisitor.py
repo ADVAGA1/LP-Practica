@@ -13,7 +13,9 @@ class EvalVisitor(ExprVisitor):
 
     def visitRoot(self,ctx):
         l = list(ctx.getChildren())
-        print(self.visit(l[0]))
+        if len(l) == 0:
+            return
+        return self.visit(l[0])
 
     # Visit a parse tree produced by ExprParser#def.
     def visitFunc(self, ctx:ExprParser.FuncContext):

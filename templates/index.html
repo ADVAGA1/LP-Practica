@@ -2,20 +2,18 @@
 <html>
     <head>
         <title>Funx</title>
-        <link href="{{ url_for('static',filename='css/main.css') }}" rel="stylesheet">
+        <link href={{ url_for("static", filename="main.css") }} rel="stylesheet">
     </head>
     <body>
         <div class="izquierda">
             <div class="funciones">
                 <h1 class="titulo" id="funciones">Funciones:</h1>
-                <ul>
-                    <li>Suma x y</li>
-                </ul>
+                {% block header %} {% endblock %}
                 <div class="consola">
                     <h1 class="titulo" id="consola">Consola:</h1>
                     <div class="input">
                         <form action="http://localhost:5000/result" method="POST">
-                            <textarea name="input" rows="4" cols="50">#Pon tu código aqui</textarea>
+                            <textarea name="input" rows="8" cols="100"></textarea>
                             <br>
                             <input type="submit" value="Submit">
                         </form>
@@ -25,7 +23,8 @@
         </div>
         <div class="derecha">
             <div>
-                <h1 class="titulo" id="resultats">Resultats:</h1>
+                <h1 class="titulo" id="resultats">Resultados:</h1>
+                {% block content %} {% endblock %}
             </div>
         </div>
     </body>
