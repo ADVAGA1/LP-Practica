@@ -8,6 +8,14 @@
   </ul>
 {% endblock %}
 
+{% block var %}
+  <ul>
+  {% for v in variables %}
+    <li class= "funcion">{{v}} = {{variables[v]}}</li>
+  {% endfor %}
+  </ul>
+{% endblock %}
+
 {% block content %}
   {% for i in range(0,[5,result|length]|min) %}
     <p class="resultado"><b>In {{result|length-i}}:</b> {{expresion[expr|length-i-1]}}</p>

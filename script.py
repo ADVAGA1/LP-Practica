@@ -17,6 +17,6 @@ while a != '.':
     parser = ExprParser(token_stream)
     tree = parser.root()
 
-    visitor.visit(tree)
+    print(visitor.visit(tree))
     a = input('? ')
 

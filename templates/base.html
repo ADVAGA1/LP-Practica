@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Funx</title>
+        <link href="{{ url_for('static', filename = 'main.css')}}" rel="stylesheet">
+    </head>
+    <body>
+        <div class="izquierda">
+            <div class="arriba">
+                <div class="arriba-child">
+                    <h1 class="titulo" id="funciones">Funciones:</h1>
+                    {% block header %} {% endblock %}
+                </div>
+                <div class="arriba-child">
+                    <h1 class="titulo" id="variables">Variables:</h1>
+                    {% block var %} {% endblock %}
+                </div>
+            </div>
+            <div class="consola">
+                <h1 class="titulo" id="consola">Consola:</h1>
+                <div class="input">
+                     <form action="http://localhost:5000/result" method="POST">
+                        <textarea name="input" cols = "50" rows = "5" ></textarea>
+                        <br>
+                        <input type="submit" value="Submit">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="derecha">
+            <div>
+                <h1 class="titulo" id="resultats">Resultados:</h1>
+                {% block content %} {% endblock %}
+            </div>
+        </div>
+    </body>
+</html>

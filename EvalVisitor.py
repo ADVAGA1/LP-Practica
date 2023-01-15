@@ -52,36 +52,56 @@ class EvalVisitor(ExprVisitor):
                 n = self.visit(l[i])
                 if n is not None: return n
 
+    # Visit a parse tree produced by ExprParser#condicion.
+    def visitCondicion(self, ctx:ExprParser.CondicionContext):
+        l = list(ctx.getChildren())
+        condicion = self.visit(l[0])
+        for i in range(1,len(l),2):
+            if self.visit(l[i]) in ['and','&&']:
+                condicion = condicion and self.visit(l[i+1])
+            elif self.visit(l[i]) in ['or','||']:
+                condicion = condicion or self.visit(l[i+1])
+        return condicion
+
+
     def visitSi(self, ctx:ExprParser.SiContext):
         l = list(ctx.getChildren())
+        condicion = self.visit(l[1])
         if(len(l) == 5):
-            if(self.visit(l[1])):
+            if(condicion):
                 n = self.visit(l[3])
                 if n is not None: return n
         else:
-            if(self.visit(l[1])):
+            if(condicion):
                 n = self.visit(l[3])
                 if n is not None: return n
             else:
                 n = self.visit(l[7])
                 if n is not None: return n
 
+
+    # Visit a parse tree produced by ExprParser#oplogico.
+    def visitOplogico(self, ctx:ExprParser.OplogicoContext):
+        return list(ctx.getChildren())[0].getText()
+
     # Visit a parse tree produced by ExprParser#condVARVAR.
     def visitCondVARVAR(self, ctx:ExprParser.CondVARVARContext):
         l = list(ctx.getChildren())
         operador = self.visit(ctx.operadorbool())
+        assert l[0].getText() in self.stack_variables[-1], "Error: variable " + l[0].getText() + " no existe."
+        assert l[2].getText() in self.stack_variables[-1], "Error: variable " + l[2].getText() + " no existe."
         if operador == '>':
-            return self.stack_variables[-1][l[0].getText()] > self.stack_variables[-1][l[2].getText()]
+            return 1 if self.stack_variables[-1][l[0].getText()] > self.stack_variables[-1][l[2].getText()] else 0
         elif operador == '<':
-            return self.stack_variables[-1][l[0].getText()] < self.stack_variables[-1][l[2].getText()]
+            return 1 if self.stack_variables[-1][l[0].getText()] < self.stack_variables[-1][l[2].getText()] else 0
         elif operador == '<=':
-            return self.stack_variables[-1][l[0].getText()] <= self.stack_variables[-1][l[2].getText()]
+            return 1 if self.stack_variables[-1][l[0].getText()] <= self.stack_variables[-1][l[2].getText()] else 0
         elif operador == '>=':
-            return self.stack_variables[-1][l[0].getText()] >= self.stack_variables[-1][l[2].getText()]
+            return 1 if self.stack_variables[-1][l[0].getText()] >= self.stack_variables[-1][l[2].getText()] else 0
         elif operador == '!=':
-            return self.stack_variables[-1][l[0].getText()] != self.stack_variables[-1][l[2].getText()]
+            return 1 if self.stack_variables[-1][l[0].getText()] != self.stack_variables[-1][l[2].getText()] else 0
         else:
-            return self.stack_variables[-1][l[0].getText()] == self.stack_variables[-1][l[2].getText()]
+            return 1 if self.stack_variables[-1][l[0].getText()] == self.stack_variables[-1][l[2].getText()] else 0
 
 
 
@@ -89,18 +109,19 @@ class EvalVisitor(ExprVisitor):
     def visitCondVARExpr(self, ctx:ExprParser.CondVARExprContext):
         l = list(ctx.getChildren())
         operador = self.visit(ctx.operadorbool())
+        assert l[0].getText() in self.stack_variables[-1], "Error: variable " + l[0].getText() + " no existe."
         if operador == '>':
-            return self.stack_variables[-1][l[0].getText()] > self.visit(l[2])
+            return 1 if self.stack_variables[-1][l[0].getText()] > self.visit(l[2]) else 0
         elif operador == '<':
-            return self.stack_variables[-1][l[0].getText()] < self.visit(l[2])
+            return 1 if self.stack_variables[-1][l[0].getText()] < self.visit(l[2]) else 0
         elif operador == '<=':
-            return self.stack_variables[-1][l[0].getText()] <= self.visit(l[2])
+            return 1 if self.stack_variables[-1][l[0].getText()] <= self.visit(l[2]) else 0
         elif operador == '>=':
-            return self.stack_variables[-1][l[0].getText()] >= self.visit(l[2])
+            return 1 if self.stack_variables[-1][l[0].getText()] >= self.visit(l[2]) else 0
         elif operador == '!=':
-            return self.stack_variables[-1][l[0].getText()] != self.visit(l[2])
+            return 1 if self.stack_variables[-1][l[0].getText()] != self.visit(l[2]) else 0
         else:
-            return self.stack_variables[-1][l[0].getText()] == self.visit(l[2])
+            return 1 if self.stack_variables[-1][l[0].getText()] == self.visit(l[2]) else 0
 
 
     # Visit a parse tree produced by ExprParser#condExprExpr.
@@ -108,17 +129,17 @@ class EvalVisitor(ExprVisitor):
         l = list(ctx.getChildren())
         operador = self.visit(ctx.operadorbool())
         if operador == '>':
-            return self.visit(l[0]) > self.visit(l[2])
+            return 1 if self.visit(l[0]) > self.visit(l[2]) else 0
         elif operador == '<':
-            return self.visit(l[0]) < self.visit(l[2])
+            return 1 if self.visit(l[0]) < self.visit(l[2]) else 0
         elif operador == '<=':
-            return self.visit(l[0]) <= self.visit(l[2])
+            return 1 if self.visit(l[0]) <= self.visit(l[2]) else 0
         elif operador == '>=':
-            return self.visit(l[0]) >= self.visit(l[2])
+            return 1 if self.visit(l[0]) >= self.visit(l[2]) else 0
         elif operador == '!=':
-            return self.visit(l[0]) != self.visit(l[2])
+            return 1 if self.visit(l[0]) != self.visit(l[2]) else 0
         else:
-            return self.visit(l[0]) == self.visit(l[2])
+            return 1 if self.visit(l[0]) == self.visit(l[2]) else 0
 
 
     # Visit a parse tree produced by ExprParser#operadorbool.
@@ -160,6 +181,7 @@ class EvalVisitor(ExprVisitor):
     # Visit a parse tree produced by ExprParser#Var.
     def visitVar(self, ctx:ExprParser.VarContext):
         l = list(ctx.getChildren())
+        assert l[0].getText() in self.stack_variables[-1], "Error: variable " + l[0].getText() + " no existe."
         return self.stack_variables[-1][l[0].getText()]
 
     def visitStatement(self, ctx):
@@ -168,7 +190,8 @@ class EvalVisitor(ExprVisitor):
 
     # Visit a parse tree produced by ExprParser#assig.
     def visitAssig(self, ctx):
-        self.stack_variables[-1][ctx.VAR().getText()] = self.visit(ctx.expr())
+        expresion = self.visit(ctx.expr())
+        self.stack_variables[-1][ctx.VAR().getText()] = expresion
 
     # Visit a parse tree produced by ExprParser#Id.
     def visitId(self, ctx:ExprParser.IdContext):

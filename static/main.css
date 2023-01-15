@@ -10,6 +10,15 @@ body {
     float:left;
 }
 
+.arriba{
+    height: 50%;
+}
+
+.arriba-child{
+    float: left;
+    width: 45%;
+}
+
 .izquierda{
     background-color: lightgrey;
     width: 50%;
@@ -17,13 +26,8 @@ body {
     float:left;
 }
 
-.funciones{
-    height: 50%;
-}
-
 .consola{
-    position: fixed;
-    top: 350px;
+    top: 50%;
     height: 50%;
 }
 
@@ -55,4 +59,8 @@ h1.titulo{
 
 #consola{
     color: BLUE;
+}
+
+#variables{
+    color: black;
 }

@@ -49,6 +49,11 @@ class ExprVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by ExprParser#condicion.
+    def visitCondicion(self, ctx:ExprParser.CondicionContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by ExprParser#condVARVAR.
     def visitCondVARVAR(self, ctx:ExprParser.CondVARVARContext):
         return self.visitChildren(ctx)
@@ -61,6 +66,11 @@ class ExprVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by ExprParser#condExprExpr.
     def visitCondExprExpr(self, ctx:ExprParser.CondExprExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ExprParser#oplogico.
+    def visitOplogico(self, ctx:ExprParser.OplogicoContext):
         return self.visitChildren(ctx)
 
 
