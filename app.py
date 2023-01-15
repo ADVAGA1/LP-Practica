@@ -9,22 +9,23 @@ funciones = []
 variables = {}
 expr = []
 
+
 class EvalVisitor(ExprVisitor):
     def __init__(self):
         self.stack_variables = [{}]
-        self.functions = {}   #clave ID, valores PARAMS, CONTEXT
+        self.functions = {}  # clave ID, valores PARAMS, CONTEXT
 
-
-    def visitRoot(self,ctx):
+    def visitRoot(self, ctx):
         l = list(ctx.getChildren())
         if len(l) == 0:
             return
         return self.visit(l[0])
 
     # Visit a parse tree produced by ExprParser#def.
-    def visitFunc(self, ctx:ExprParser.FuncContext):
+    def visitFunc(self, ctx: ExprParser.FuncContext):
         l = list(ctx.getChildren())
-        assert not l[0].getText() in self.functions, "Error: Funcion ya definida"
+        assert not l[0].getText(
+        ) in self.functions, "Error: Funcion ya definida"
         f_info = {}
         f_info["PARAMS"] = []
         params = self.visit(l[1])
@@ -40,65 +41,70 @@ class EvalVisitor(ExprVisitor):
         funciones.append(funcion)
 
     # Visit a parse tree produced by ExprParser#args.
-    def visitArgs(self, ctx:ExprParser.ArgsContext):
+    def visitArgs(self, ctx: ExprParser.ArgsContext):
         l = list(ctx.getChildren())
         lista = []
         for child in l:
             lista.append(child.getText())
         return lista
 
-    def visitBloque(self, ctx:ExprParser.BloqueContext):
+    def visitBloque(self, ctx: ExprParser.BloqueContext):
         l = list(ctx.getChildren())
         for child in l:
             n = self.visit(child)
-            if n is not None: return n
+            if n is not None:
+                return n
 
     # Visit a parse tree produced by ExprParser#while.
-    def visitMientras(self, ctx:ExprParser.MientrasContext):
+    def visitMientras(self, ctx: ExprParser.MientrasContext):
         l = list(ctx.getChildren())
         while self.visit(l[1]):
             for i in range(3, len(l)-1):
                 n = self.visit(l[i])
-                if n is not None: return n
+                if n is not None:
+                    return n
 
     # Visit a parse tree produced by ExprParser#condicion.
-    def visitCondicion(self, ctx:ExprParser.CondicionContext):
+    def visitCondicion(self, ctx: ExprParser.CondicionContext):
         l = list(ctx.getChildren())
         condicion = self.visit(l[0])
-        for i in range(1,len(l),2):
-            if self.visit(l[i]) in ['and','&&']:
+        for i in range(1, len(l), 2):
+            if self.visit(l[i]) in ['and', '&&']:
                 condicion = condicion and self.visit(l[i+1])
-            elif self.visit(l[i]) in ['or','||']:
+            elif self.visit(l[i]) in ['or', '||']:
                 condicion = condicion or self.visit(l[i+1])
         return condicion
 
-
-    def visitSi(self, ctx:ExprParser.SiContext):
+    def visitSi(self, ctx: ExprParser.SiContext):
         l = list(ctx.getChildren())
         condicion = self.visit(l[1])
-        if(len(l) == 5):
-            if(condicion):
+        if (len(l) == 5):
+            if (condicion):
                 n = self.visit(l[3])
-                if n is not None: return n
+                if n is not None:
+                    return n
         else:
-            if(condicion):
+            if (condicion):
                 n = self.visit(l[3])
-                if n is not None: return n
+                if n is not None:
+                    return n
             else:
                 n = self.visit(l[7])
-                if n is not None: return n
-
+                if n is not None:
+                    return n
 
     # Visit a parse tree produced by ExprParser#oplogico.
-    def visitOplogico(self, ctx:ExprParser.OplogicoContext):
+    def visitOplogico(self, ctx: ExprParser.OplogicoContext):
         return list(ctx.getChildren())[0].getText()
 
     # Visit a parse tree produced by ExprParser#condVARVAR.
-    def visitCondVARVAR(self, ctx:ExprParser.CondVARVARContext):
+    def visitCondVARVAR(self, ctx: ExprParser.CondVARVARContext):
         l = list(ctx.getChildren())
         operador = self.visit(ctx.operadorbool())
-        assert l[0].getText() in self.stack_variables[-1], "Error: variable " + l[0].getText() + " no existe."
-        assert l[2].getText() in self.stack_variables[-1], "Error: variable " + l[2].getText() + " no existe."
+        assert l[0].getText() in self.stack_variables[-1], "Error: variable " + \
+            l[0].getText() + " no existe."
+        assert l[2].getText() in self.stack_variables[-1], "Error: variable " + \
+            l[2].getText() + " no existe."
         if operador == '>':
             return 1 if self.stack_variables[-1][l[0].getText()] > self.stack_variables[-1][l[2].getText()] else 0
         elif operador == '<':
@@ -112,13 +118,13 @@ class EvalVisitor(ExprVisitor):
         else:
             return 1 if self.stack_variables[-1][l[0].getText()] == self.stack_variables[-1][l[2].getText()] else 0
 
-
-
     # Visit a parse tree produced by ExprParser#condVARExpr.
-    def visitCondVARExpr(self, ctx:ExprParser.CondVARExprContext):
+
+    def visitCondVARExpr(self, ctx: ExprParser.CondVARExprContext):
         l = list(ctx.getChildren())
         operador = self.visit(ctx.operadorbool())
-        assert l[0].getText() in self.stack_variables[-1], "Error: variable " + l[0].getText() + " no existe."
+        assert l[0].getText() in self.stack_variables[-1], "Error: variable " + \
+            l[0].getText() + " no existe."
         if operador == '>':
             return 1 if self.stack_variables[-1][l[0].getText()] > self.visit(l[2]) else 0
         elif operador == '<':
@@ -132,9 +138,8 @@ class EvalVisitor(ExprVisitor):
         else:
             return 1 if self.stack_variables[-1][l[0].getText()] == self.visit(l[2]) else 0
 
-
     # Visit a parse tree produced by ExprParser#condExprExpr.
-    def visitCondExprExpr(self, ctx:ExprParser.CondExprExprContext):
+    def visitCondExprExpr(self, ctx: ExprParser.CondExprExprContext):
         l = list(ctx.getChildren())
         operador = self.visit(ctx.operadorbool())
         if operador == '>':
@@ -150,32 +155,31 @@ class EvalVisitor(ExprVisitor):
         else:
             return 1 if self.visit(l[0]) == self.visit(l[2]) else 0
 
-
     # Visit a parse tree produced by ExprParser#operadorbool.
-    def visitOperadorbool(self, ctx:ExprParser.OperadorboolContext):
+    def visitOperadorbool(self, ctx: ExprParser.OperadorboolContext):
         return list(ctx.getChildren())[0].getText()
 
     def visitPotencia(self, ctx):
         l = list(ctx.getChildren())
-        return pow(self.visit(l[0]),self.visit(l[2]))
+        return pow(self.visit(l[0]), self.visit(l[2]))
 
     def visitSumRes(self, ctx):
         l = list(ctx.getChildren())
-        if(l[1].getText() == '+'):
+        if (l[1].getText() == '+'):
             return self.visit(l[0]) + self.visit(l[2])
         else:
             return self.visit(l[0]) - self.visit(l[2])
 
     def visitMulDiv(self, ctx):
         l = list(ctx.getChildren())
-        if(l[1].getText() == '*'):
+        if (l[1].getText() == '*'):
             return self.visit(l[0]) * self.visit(l[2])
         else:
             assert self.visit(l[2]) != 0, "Error: Division por 0"
             return self.visit(l[0]) // self.visit(l[2])
 
     # Visit a parse tree produced by ExprParser#Modulo.
-    def visitModulo(self, ctx:ExprParser.ModuloContext):
+    def visitModulo(self, ctx: ExprParser.ModuloContext):
         l = list(ctx.getChildren())
         return self.visit(l[0]) % self.visit(l[2])
 
@@ -188,9 +192,10 @@ class EvalVisitor(ExprVisitor):
         return int(l[0].getText())
 
     # Visit a parse tree produced by ExprParser#Var.
-    def visitVar(self, ctx:ExprParser.VarContext):
+    def visitVar(self, ctx: ExprParser.VarContext):
         l = list(ctx.getChildren())
-        assert l[0].getText() in self.stack_variables[-1], "Error: variable " + l[0].getText() + " no existe."
+        assert l[0].getText() in self.stack_variables[-1], "Error: variable " + \
+            l[0].getText() + " no existe."
         return self.stack_variables[-1][l[0].getText()]
 
     def visitStatement(self, ctx):
@@ -204,13 +209,15 @@ class EvalVisitor(ExprVisitor):
         variables[ctx.VAR().getText()] = expresion
 
     # Visit a parse tree produced by ExprParser#Id.
-    def visitId(self, ctx:ExprParser.IdContext):
+    def visitId(self, ctx: ExprParser.IdContext):
         l = list(ctx.getChildren())
         assert l[0].getText() in self.functions, "Error: Funcion no definida"
-        assert len(l) - 1  == len(self.functions[l[0].getText()]["PARAMS"]), "Error: Numero de parámetros incorrecto"
+        assert len(l) - 1 == len(self.functions[l[0].getText()]
+                                 ["PARAMS"]), "Error: Numero de parámetros incorrecto"
         variables = {}
         for i in range(0, len(self.functions[l[0].getText()]["PARAMS"])):
-            variables[self.functions[l[0].getText()]["PARAMS"][i]] = self.visit(l[i+1])
+            variables[self.functions[l[0].getText()]["PARAMS"][i]
+                      ] = self.visit(l[i+1])
         self.stack_variables.append(variables)
         ret = self.visit(self.functions[l[0].getText()]["CONTEXT"])
         self.stack_variables.pop()
@@ -221,16 +228,15 @@ app = Flask(__name__)
 visitor = EvalVisitor()
 
 
-
 def depurar(ins: str) -> str:
-    
+
     def extender(var):
         p = ""
         for s in var:
             p += s
             p += " "
         return p
-    
+
     if ins[0] == "#":
         lineas = ins.splitlines()
         lineas.pop(0)
@@ -243,13 +249,14 @@ def depurar(ins: str) -> str:
 def base():
     return render_template("base.html")
 
-@app.route("/result",methods = ["POST","GET"])
+
+@app.route("/result", methods=["POST", "GET"])
 def result():
     if request.method == "POST":
         result = request.form
         instruccion = result["input"]
         if len(instruccion) == 0:
-            return render_template("result.html",result = resultado, funcion = funciones, expresion = expr, variables = variables)
+            return render_template("result.html", result=resultado, funcion=funciones, expresion=expr, variables=variables)
         antlr = InputStream(instruccion)
         lexer = ExprLexer(antlr)
         token_stream = CommonTokenStream(lexer)
@@ -263,5 +270,4 @@ def result():
             resultado.append(res)
         except AssertionError as ex:
             resultado.append(ex.args[0])
-    return render_template("result.html",result = resultado, funcion = funciones, expresion = expr, variables = variables)
-
+    return render_template("result.html", result=resultado, funcion=funciones, expresion=expr, variables=variables)
