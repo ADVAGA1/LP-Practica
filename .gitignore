@@ -1,6 +1,6 @@
 __pycache__
 .antlr
-Expr*
+funx*
 !*.py
-!Expr.g
+!funx.g4
 !README.md
