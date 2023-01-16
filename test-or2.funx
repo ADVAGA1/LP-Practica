@@ -1,0 +1,8 @@
+x <- 10
+y <- 5
+z <- 0
+
+while x > 0 || y > 0 {x <- x - 1 y <- y - 1 z <- z + 1}
+
+# z tendria que ser 10
+z

@@ -1,0 +1,22 @@
+x <- 5
+y <- 5
+
+if x > 0 || y > 0 {z <- 1} else {z <- 0}
+
+#z deberia ser 1
+z
+
+if x > 0 || y < 0 {z <- 1} else {z <- 0}
+
+#z deberia ser 1
+z
+
+if x < 0 || y > 0 {z <- 1} else {z <- 0}
+
+#z deberia ser 1
+z
+
+if x < 0 || y < 0 {z <- 1} else {z <- 0}
+
+#z deberia ser 0
+z
